@@ -1,0 +1,178 @@
+---
+import Head from "../components/core/head.astro";
+import Navbar from "../components/core/navbar.astro";
+import RightNav from "../components/core/rightNav.astro";
+import { MongoDB } from "../lib/mongodb";
+
+const { userData } = Astro.locals;
+let isChanged = false;
+let isError = null;
+
+const likes = await new MongoDB("likes").getLike_Playlist_byUserID(userData._id);
+const likedFilms = (
+  await Promise.all(
+    likes.map(async (data) => {
+      // Ambil data film berdasarkan ID
+      const search = await new MongoDB("films").searchByID(data.filmID);
+      return search;
+    })
+  )
+).length;
+const playlists = await new MongoDB("playlists").getLike_Playlist_byUserID(userData._id);
+const playfilms = (
+  await Promise.all(
+    playlists.map(async (data) => {
+      // Ambil data film berdasarkan ID
+      const search = await new MongoDB("films").searchByID(data.filmID);
+      return search;
+    })
+  )
+).length;
+
+if (Astro.request.method == "POST") {
+  const form = Object.fromEntries(await Astro.request.formData());
+  if (form.username != "") {
+    if (/^[a-zA-Z0-9$_]+$/.test(form.username as string)) {
+      if (form.pass != "" && !isError) userData.password = form.pass as string;
+      isChanged = (await new MongoDB("accounts").updateAccount(form.username, form.pass, userData._id)) as boolean;
+      userData.username = form.username as string;
+    } else {
+      isError = { err: true, msg: "Username Hanya Boleh Berisi (a-z, A-Z, 0-9, $, dan _)" };
+    }
+  }
+}
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <Head title="Profil - UrEyes" />
+  </head>
+  <body class="scroll-smooth bg-bg-btm min-h-screen pb-20 font-sans">
+    <Navbar>
+      <RightNav />
+    </Navbar>
+
+    <div class="pt-28 pb-4 px-12">
+      <div class="max-w-5xl mx-auto">
+        <!-- Glassmorphism Card -->
+        <div class="bg-bg-btm/60 backdrop-blur-md border border-white/10 rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-center gap-8 shadow-2xl relative overflow-hidden">
+          <!-- Background Decoration -->
+          <div class="absolute top-0 right-0 w-64 h-64 bg-bg-top/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
+          <!-- Avatar -->
+          <div class="relative group">
+            <div class="w-32 h-32 md:w-40 md:h-40 rounded-full p-1 bg-linear-to-tr from-bg-top to-bg-btm">
+              <img src={userData.urlProfile} class="w-full h-full rounded-full bg-brand-dark object-cover border-4 border-brand-dark" />
+            </div>
+          </div>
+          <!-- Info User -->
+          <div class="text-center md:text-left grow">
+            <h1 class="text-2xl md:text-4xl font-bold mb-2 text-white">{userData.username}</h1>
+            <p class="text-bg-top font-medium mb-4">{userData.email}</p>
+            <div class="flex justify-center md:justify-start gap-8 text-sm text-gray-300">
+              <div class="text-center md:text-left">
+                <span class="block text-xl font-bold text-white">{playfilms}</span>
+                <span class="text-xs uppercase tracking-wider">Playlist Saya</span>
+              </div>
+              <div class="text-center md:text-left">
+                <span class="block text-xl font-bold text-white">{likedFilms}</span>
+                <span class="text-xs uppercase tracking-wider">Suka</span>
+              </div>
+              <div class="text-center md:text-left">
+                <span class="block text-xl font-bold text-white">Basic</span>
+                <span class="text-xs uppercase tracking-wider">Status</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="max-w-3xl mx-auto px-6 mt-8 pb-20" id="settings-section">
+      <div class="bg-bg-btm/60 backdrop-blur-sm border border-white/10 p-8 rounded-2xl shadow-xl">
+        <h3 class="text-2xl font-bold mb-8 flex items-center gap-3 text-white">
+          <svg class="w-7 h-7 text-bg-top" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+            ><path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+            ></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg
+          >
+          Pengaturan Akun
+        </h3>
+
+        <form class="space-y-6" method="post">
+          {
+            isChanged && (
+              <div class="py-2">
+                <div class="border border-green-600 bg-green-500/60 text-green-200 text-sm rounded-lg block w-full p-3 shadow-xs">Data telah diubah!</div>
+              </div>
+            )
+          }
+          {
+            isError?.err && (
+              <div class="py-2">
+                <div class="border border-red-600 bg-red-500/60 text-red-200 text-sm rounded-lg block w-full p-3 shadow-xs">{isError.msg}</div>
+              </div>
+            )
+          }
+          <div>
+            <label class="block text-sm text-gray-400 mb-2 font-semibold">Username</label>
+            <input type="text" value={userData.username} class="form_input" name="username" />
+          </div>
+
+          <div>
+            <label class="block text-sm text-gray-400 mb-2 font-semibold">Email</label>
+            <input type="email" name="email" value={userData.email} class="form_input cursor-not-allowed text-white/60!" disabled />
+            <p class="text-xs text-gray-500 mt-2 flex items-center gap-1">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                ><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg
+              >
+              Hubungi admin untuk mengubah email
+            </p>
+          </div>
+
+          <div>
+            <label class="block text-sm text-gray-400 mb-2 font-semibold">Password Baru</label>
+            <input type="password" class="hidden" name="pass" id="pass" />
+            <button type="button" class="form_input flex! justify-start cursor-pointer max-w-44 py-2!" onclick="resetPW()">Buat Passwod Baru</button>
+            <script is:inline>
+              function resetPW() {
+                const newPW = prompt("Masukkan password baru kamu!");
+                const inputPw = document.querySelector("input#pass");
+                inputPw.value = newPW;
+              }
+            </script>
+          </div>
+
+          <div class="pt-4 flex justify-end">
+            <button type="submit" class="bg-btn hover:bg-btn-hover text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-bg-ttext-bg-top/20 transition-all transform hover:scale-105"> Simpan Perubahan </button>
+          </div>
+        </form>
+
+        <!-- Danger Zone -->
+        <div class="mt-16 pt-8 border-t border-white/10">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div>
+              <h4 class="text-red-400 font-bold text-lg mb-1 flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                  ><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg
+                >
+                Zona Berbahaya
+              </h4>
+              <p class="text-gray-400 text-sm max-w-md">Menghapus akun Anda bersifat permanen. Semua riwayat tontonan, daftar saya, dan ulasan akan dihapus dan tidak dapat dikembalikan.</p>
+            </div>
+            <button onclick="deleteAccount()" class="border border-red-500/50 text-red-400 hover:bg-red-500/10 hover:border-red-500 px-6 py-3 rounded-xl font-bold transition-all text-sm whitespace-nowrap cursor-pointer"> Hapus Akun Permanen </button>
+            <script is:inline>
+              function deleteAccount() {
+                const val = confirm("Kamu yakin ingin menghapus akun ini?");
+                if (val) window.location.href = "/deleteAcc";
+              }
+            </script>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,19 @@
+---
+const { data } = Astro.props;
+---
+
+<a href={`/films/${data._id}`} class="flex-none w-64 md:w-80 group relative cursor-pointer snap-start">
+  <div class="aspect-video rounded-lg overflow-hidden bg-gray-800 relative border border-white/10 shadow-lg">
+    <img src={data.bannerUri} class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+    <!-- Gradient bawah untuk teks -->
+    <div class="absolute inset-0 bg-linear-to-t from-black via-transparent to-transparent"></div>
+
+    <!-- Rating Badge Pojok Kiri Atas -->
+    <div class="absolute top-3 left-3 bg-bg-top text-white px-2 py-1 rounded text-xs font-bold shadow-lg">Rating: {data.rating}</div>
+
+    <div class="absolute bottom-4 left-4">
+      <h4 class="text-lg font-bold text-white">{data.judul}</h4>
+      <span class="text-xs text-gray-300">{data.genre.join(", ")} • {data.tahun}</span>
+    </div>
+  </div>
+</a>

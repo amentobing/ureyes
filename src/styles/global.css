@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg-top: #00add1;
+  --color-bg-btm: #002831;
+  --color-btn: #009cbd;
+  --color-btn-hover: #0088a8;
+  --color-bg-input: #264d58;
+  --color-btn: #0099bd;
+  --font-logo: [ "Irish Grover", "arial"];
+}
+
+.form_input {
+  @apply block w-full rounded-xl p-4 text-white border border-white/60 appearance-none bg-bg-input focus:outline-0 focus:ring-0 focus:border-bg-top;
+}
+.form_submit {
+  @apply w-full py-2.5 mt-5 bg-transparent rounded-xl text-btn font-bold border-2 border-btn cursor-pointer transition-all duration-200 hover:bg-btn hover:text-white hover:shadow-lg;
+}
+
+.userDrop_li {
+  @apply inline-flex items-center w-full p-2 hover:bg-bg-top/70 hover:text-white rounded;
+}

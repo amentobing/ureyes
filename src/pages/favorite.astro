@@ -1,0 +1,51 @@
+---
+import Head from "../components/core/head.astro";
+import Navbar from "../components/core/navbar.astro";
+import RightNav from "../components/core/rightNav.astro";
+import MovieCard2 from "../components/movieCard2.astro";
+import SearchNav from "../components/core/searchNav";
+import { MongoDB } from "../lib/mongodb";
+
+const { userData } = Astro.locals;
+
+const likes = await new MongoDB("likes").getLike_Playlist_byUserID(userData._id);
+const films = await Promise.all(
+  likes.map(async (data) => {
+    // Ambil data film berdasarkan ID
+    const search = await new MongoDB("films").searchByID(data.filmID);
+    return search;
+  })
+);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <Head title="Daftar Tontonan - UrEyes" />
+  </head><body class="bg-bg-btm min-h-screen pb-20 font-sans">
+    <Navbar>
+      <RightNav>
+        <SearchNav client:load />
+      </RightNav>
+    </Navbar>
+    <main class="max-w-7xl mx-auto px-4 pt-28 pb-10">
+      <div class="flex flex-col lg:flex-row md:items-center justify-between gap-6 mb-8 border-b border-white/10 pb-6">
+        <div class="">
+          <h1 class="text-3xl font-bold mb-2 flex items-center gap-3 text-white">
+            <svg class="w-8 h-8 text-bg-top" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+              ><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg
+            >
+            Daftar Film Favorite Saya
+          </h1>
+          <p class="text-gray-400 text-sm">Film yang Anda sukai untuk ditonton nanti.</p>
+        </div>
+        <div class="text-right text-white">
+          <span id="item-count" class="bg-white/10 px-4 py-2 rounded-full text-sm font-bold border border-white/10"> {films.length} Film Disukai </span>
+        </div>
+      </div>
+      <div class="flex gap-4 overflow-x-auto pb-4 snap-x [&::-webkit-scrollbar]:hidden">
+        {films.map((film) => <MovieCard2 data={film} />)}
+      </div>
+    </main>
+  </body>
+</html>

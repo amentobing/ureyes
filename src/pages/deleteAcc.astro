@@ -1,0 +1,86 @@
+---
+import Head from "../components/core/head.astro";
+import { MongoDB } from "../lib/mongodb";
+
+let errorMessage;
+
+if (Astro.request.method == "POST") {
+  const { userData } = Astro.locals;
+  const pass = Object.fromEntries(await Astro.request.formData()).password;
+
+  if (userData.password === pass) {
+    const result = await new MongoDB("accounts").deleteAccount(userData._id).then((res) => {
+      if (res?.err) errorMessage = res?.msg;
+    });
+    return Astro.redirect("/");
+  } else {
+    errorMessage = "Password anda salah";
+  }
+}
+---
+
+<html>
+  <head>
+    <Head title="Hapus Akun Permanen" />
+  </head>
+  <body class="bg-bg-btm font-sans">
+    <div class="grow flex items-center justify-center p-4 min-h-screen">
+      <!-- Kartu Konfirmasi -->
+      <div class="w-full max-w-[450px] bg-white/10 backdrop-blur-md rounded-3xl p-8 shadow-2xl border border-red-500/30 relative overflow-hidden">
+        <!-- Aksen Merah di atas -->
+        <div class="absolute top-0 left-0 w-full h-2 bg-red-500"></div>
+
+        <div class="text-center mb-8">
+          <div class="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-500/50">
+            <svg class="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+              ><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg
+            >
+          </div>
+          <h2 class="text-3xl font-bold text-white mb-2">Hapus Akun?</h2>
+          <p class="text-gray-200 text-sm leading-relaxed">
+            Tindakan ini bersifat <strong>permanen</strong>. Masukkan kata sandi Anda untuk mengonfirmasi penghapusan akun beserta seluruh data Anda.
+          </p>
+        </div>
+
+        <!-- Pesan Error (Ditampilkan Kondisional) -->
+        {
+          errorMessage && (
+            <div class="mb-6 p-4 bg-red-900/50 border border-red-500/50 rounded-xl flex items-center gap-3 text-red-200 text-sm animate-pulse">
+              <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>{errorMessage}</span>
+            </div>
+          )
+        }
+
+        <!-- Form menggunakan method POST -->
+        <form method="POST" class="flex flex-col gap-5">
+          <!-- Input Password -->
+          <div>
+            <label class="block text-xs font-bold text-red-200 uppercase tracking-wider mb-2 ml-1" for="password">Konfirmasi Kata Sandi</label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              class="w-full bg-black/40 text-white px-5 py-4 rounded-xl border border-red-500/30 focus:outline-none focus:border-red-500 transition-colors placeholder-gray-500"
+              placeholder="Masukkan kata sandi Anda"
+              required
+            />
+          </div>
+
+          <!-- Tombol Hapus -->
+          <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl transition-all duration-200 shadow-lg shadow-red-900/30 mt-2 flex justify-center items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+              ><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg
+            >
+            Hapus Akun Permanen
+          </button>
+
+          <!-- Tombol Batal -->
+          <a href="/profile" class="text-center text-gray-300 hover:text-white text-sm font-medium transition-colors"> Batalkan dan Kembali </a>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>

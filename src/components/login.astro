@@ -1,0 +1,31 @@
+---
+const { err, form } = Astro.props;
+---
+
+<div class="flex grow items-center justify-center p-4">
+  <div class="w-full max-w-[400px] bg-white/20 backdrop-blur-2xl p-8 shadow-xl rounded-2xl">
+    <h2 class="text-2xl font-bold text-white mb-8">Masuk</h2>
+    <form action="/" method="post" class="flex flex-col gap-5">
+      {
+        err && (
+          <div class="py-2">
+            <div class="border border-red-600 bg-red-500/60 text-red-200 text-sm rounded-lg block w-full p-3 shadow-xs">{err}</div>
+          </div>
+        )
+      }
+      <div class="relative">
+        <input type="email" class="form_input" id="email" name="email" required placeholder="Email" value={(form?.email as string) || ""} />
+      </div>
+      <div class="relative">
+        <input type="password" class="form_input" id="pass" name="pass" required placeholder="Password" value={(form?.pass as string) || ""} />
+      </div>
+      <div>
+        <button type="submit" class="form_submit">Masuk</button>
+      </div>
+    </form>
+    <div class="mt-4 text-sm text-gray-200 space-y-3">
+      <a href="#" class="block hover:text-white transition-colors">Lupa Sandi? </a>
+      <p class="block pt-6">Baru disini? <a href="/register" class="font-bold hover:text-bg-top">Daftar Sekarang!</a></p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,11 @@
+---
+import { MongoDB } from "../lib/mongodb";
+
+const session = Astro.cookies.get("sessionID")?.value;
+const checkUserSession = await new MongoDB("sessions").getUserFromSession(session);
+if (checkUserSession) {
+  await new MongoDB("sessions").deleteSession(session);
+  Astro.cookies.delete("sessionID");
+}
+return Astro.redirect("/");
+---

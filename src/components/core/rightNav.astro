@@ -1,0 +1,54 @@
+---
+const { userData } = Astro.locals;
+const { username, email, _id, urlProfile } = userData;
+---
+
+<div class="flex items-center space-x-3">
+  <div class="relative">
+    <slot />
+  </div>
+
+  <button type="button" class="flex text-sm text-bg-top rounded-full focus:ring-4 focus:ring-bg-top" id="userBtn" aria-expanded="false" data-dropdown-toggle="userDrop" data-dropdown-placement="bottom">
+    <span class="sr-only">Open Menu</span>
+    <img src={urlProfile} alt="User Photo" class="w-10 h-10 rounded-full" />
+  </button>
+  <div class="z-50 absolute hidden right-6 lg:right-14 top-full bg-bg-btm border border-bg-top rounded-xl shadow-lg w-52" id="userDrop">
+    <div class="px-4 py-3 text-sm border-b">
+      <span class="block text-white/80 font-medium">{username}</span>
+      <span class="block text-white/50 truncate">{email}</span>
+    </div>
+    <ul class="p-2 text-sm text-white/60 font-medium" aria-labelledby="user-menu-button">
+      <li>
+        <a href="/profile" class="userDrop_li">Profile</a>
+      </li>
+      <li>
+        <a href="/playlist" class="userDrop_li">Daftar Tontonan</a>
+      </li>
+      <li>
+        <a href="/favorite" class="userDrop_li">Film Favorite</a>
+      </li>
+      <li class="pt-2">
+        <button type="button" class="userDrop_li hover:bg-red-500! font-bold" onclick="logout()">Keluar</button>
+      </li>
+    </ul>
+  </div>
+  <script is:inline>
+    const userBtn = document.querySelector("#userBtn");
+    const userDrop = document.querySelector("#userDrop");
+
+    window.addEventListener("click", function (e) {
+      if (!userBtn.contains(e.target) && !userDrop.contains(e.target)) {
+        userDrop.classList.add("hidden");
+      }
+    });
+    userBtn.addEventListener("click", (e) => {
+      userDrop.classList.toggle("hidden");
+    });
+
+    function logout() {
+      if (confirm("Kamu yakin ingin keluar dari akun ini?")) {
+        window.location.href = "/logout";
+      }
+    }
+  </script>
+</div>

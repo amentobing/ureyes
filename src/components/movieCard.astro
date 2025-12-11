@@ -1,0 +1,15 @@
+---
+const { data } = Astro.props;
+---
+
+<a href={`/films/${data._id}`} class="flex-none w-40 md:w-56 group relative cursor-pointer snap-start group">
+  <div class="aspect-2/3 rounded-lg overflow-hidden bg-gray-800 relative shadow-lg">
+    <img src={data.bannerUri} class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+    <div class="absolute top-2 right-2 bg-black/70 backdrop-blur-sm px-2 py-1 rounded text-xs font-bold text-yellow-400 flex items-center gap-1 border border-white/10">
+      <span>★</span>
+      {data.rating}
+    </div>
+  </div>
+  <h4 class="mt-2 font-bold text-base text-gray-100 group-hover:text-bg-top truncate">{data.judul}</h4>
+  <p class="text-xs text-gray-400">{data.genre.join(", ")}</p>
+</a>

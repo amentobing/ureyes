@@ -1,0 +1,12 @@
+---
+import { ObjectId } from "mongodb";
+import { MongoDB } from "../../lib/mongodb";
+
+const { userID, filmID } = Object.fromEntries(Astro.url.searchParams);
+const { userData } = Astro.locals;
+const searchFilm = await new MongoDB("films").searchByID(filmID);
+
+if (userData && searchFilm) {
+  await new MongoDB("playlists").addLike_Playlist(userData._id, new ObjectId(filmID));
+}
+---

@@ -1,0 +1,39 @@
+---
+import Head from "../components/core/head.astro";
+import Navbar from "../components/core/navbar.astro";
+import RightNav from "../components/core/rightNav.astro";
+import SearchFilm from "../components/core/searchFilm";
+import ContainerMovieCard from "../components/containerMovieCard.astro";
+import MovieCard from "../components/movieCard.astro";
+import ContainerMovieCard2 from "../components/containerMovieCard2.astro";
+import MovieCard2 from "../components/movieCard2.astro";
+import { MongoDB } from "../lib/mongodb";
+
+const query = Astro.url.searchParams.get("query");
+const filteredFilms = await new MongoDB("films").searchFilm(query || "");
+
+const topFilms = await new MongoDB("films").getTopFilms();
+---
+
+<!doctype html>
+<html lang="id-ID">
+  <head>
+    <Head title="Cari Film - UrEyes" />
+  </head>
+  <body class="scroll-smooth bg-bg-btm min-h-screen flex flex-col items-center">
+    <Navbar>
+      <RightNav />
+    </Navbar>
+    <main class="max-w-7xl w-full px-12 relative mt-28">
+      <div class="flex justify-center items-center w-full pb-12"><SearchFilm client:load defaultQuery={query || ""} /></div>
+      <ContainerMovieCard title="Hasil Pencarian">
+        {filteredFilms?.map((data) => <MovieCard data={data} />)}
+      </ContainerMovieCard>
+      <div class="pt-8">
+        <ContainerMovieCard2 title="Populer Saat Ini">
+          {topFilms?.map((data) => <MovieCard2 data={data} />)}
+        </ContainerMovieCard2>
+      </div>
+    </main>
+  </body>
+</html>

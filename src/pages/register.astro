@@ -1,0 +1,65 @@
+---
+import Head from "../components/core/head.astro";
+import { MongoDB } from "../lib/mongodb";
+
+let err;
+let dumpForm;
+let hasCreated;
+
+if (Astro.request.method == "POST") {
+  const form = Object.fromEntries(await Astro.request.formData());
+  const result = await new MongoDB("accounts").addAccount(form.email, form.pass);
+  if (!result?.action) {
+    err = result;
+    dumpForm = form;
+  } else {
+    hasCreated = true;
+  }
+}
+---
+
+<html lang="id-ID">
+  <head>
+    <Head title="UrEyes - Daftar Film Dunia" />
+  </head>
+  <body class="scroll-smooth bg-linear-to-b from-bg-top to-bg-btm min-h-screen flex flex-col">
+    <div class="flex grow items-center justify-center p-4">
+      <div class="w-full max-w-[400px] bg-white/20 backdrop-blur-2xl p-8 shadow-xl rounded-2xl">
+        <h2 class="text-2xl font-bold text-white mb-8">Daftar</h2>
+        <form method="post" class="flex flex-col gap-5">
+          {
+            err && (
+              <div class="py-2">
+                <div class="border border-red-600 bg-red-500/60 text-red-200 text-sm rounded-lg block w-full p-3 shadow-xs">{err.msg}</div>
+              </div>
+            )
+          }
+          {
+            hasCreated && (
+              <div class="py-2">
+                <div class="border border-green-600 bg-green-500/60 text-green-200 text-sm rounded-lg block w-full p-3 shadow-xs">
+                  Akun telah dibuat, silahkan
+                  <a href="/" class="font-bold text-white">
+                    Login
+                  </a>
+                </div>
+              </div>
+            )
+          }
+          <div class="relative">
+            <input type="email" class="form_input" id="email" name="email" required placeholder="Email" value={(dumpForm?.email as string) || ""} />
+          </div>
+          <div class="relative">
+            <input type="password" class="form_input" id="pass" name="pass" required placeholder="Password" value={(dumpForm?.pass as string) || ""} />
+          </div>
+          <div>
+            <button type="submit" class="form_submit">Daftar</button>
+          </div>
+        </form>
+        <div class="mt-4 text-sm text-gray-200 space-y-3">
+          <p class="block pt-6">Sudah buat akun? <a href="/" class="font-bold hover:text-bg-top">Masuk Sekarang!</a></p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
