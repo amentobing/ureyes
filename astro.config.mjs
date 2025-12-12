@@ -1,7 +1,7 @@
 // @ts-check
 import { defineConfig } from "astro/config";
-import node from "@astrojs/node";
 import tailwindcss from "@tailwindcss/vite";
+import vercel from "@astrojs/vercel";
 
 import dbInitializer from "./intergrations/dbInitial";
 
@@ -12,9 +12,7 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
   },
-  adapter: node({
-    mode: "standalone",
-  }),
+  adapter: vercel(),
   output: "server",
   integrations: [dbInitializer(), react()],
 });
