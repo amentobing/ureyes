@@ -51,7 +51,7 @@ Pastikan Anda telah menginstal:
 ### 2. Clone Repository
 
 ```bash
-git clone [https://github.com/amentobing/ureyes.git](https://github.com/amentobing/ureyes.git)
+git clone https://github.com/amentobing/ureyes.git
 cd ureyes
 ```
 
